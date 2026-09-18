@@ -3,6 +3,7 @@ let context;
 let scoreEl;
 let gameOverEl;
 let replayBtn;
+let touchControls;
 
 const roadHeight = 550;
 const roadWidth = 260;
@@ -22,11 +23,13 @@ const man = {
     width: 50,
     height: 72,
     targetX: 0,
-    baseY: 0
+    baseY: 0,
+    jumping: false,
+    velocityY: 0
 };
 
 let obstacles = [];
-const crashSound = new Audio("./fahhhhhhhhhhhhhh.mp3");
+const crashSound = new Audio("./freesound_community-negative_beeps-6008.mp3");
 
 const obstacleAssets = {
     rock: {
@@ -61,11 +64,23 @@ window.onload = function () {
     scoreEl = document.getElementById("score");
     gameOverEl = document.getElementById("gameOver");
     replayBtn = document.getElementById("replayBtn");
+    touchControls = document.getElementById("touchControls");
 
     road.width = roadWidth;
     road.height = roadHeight;
 
     replayBtn.addEventListener("click", resetGame);
+    touchControls.addEventListener("pointerdown", (event) => {
+        const button = event.target.closest("button");
+
+        if (!button) {
+            return;
+        }
+
+        event.preventDefault();
+        button.setPointerCapture?.(event.pointerId);
+        handleAction(button.dataset.action);
+    });
 
     resetGame();
     requestAnimationFrame(update);
@@ -76,7 +91,8 @@ function resetGame() {
         laneWidth / 2,
         laneWidth + laneWidth / 2,
         laneWidth * 2 + laneWidth / 2,
-        laneWidth * 3 + laneWidth / 2
+        laneWidth * 3 + laneWidth / 2,
+        
     ];
 
     currentLane = 1;
@@ -92,6 +108,8 @@ function resetGame() {
     man.x = lanes[currentLane] - man.width / 2;
     man.y = man.baseY;
     man.targetX = man.x;
+    man.jumping = false;
+    man.velocityY = 0;
 
     scoreEl.textContent = "Score: 0";
     gameOverEl.style.display = "none";
@@ -153,7 +171,16 @@ function moveRunnerToLane() {
 }
 
 function moveRunner() {
-    man.y = man.baseY;
+    if (man.jumping) {
+        man.y += man.velocityY;
+        man.velocityY += 0.6;
+
+        if (man.y >= man.baseY) {
+            man.y = man.baseY;
+            man.jumping = false;
+            man.velocityY = 0;
+        }
+    }
 }
 
 function moveObstacles() {
@@ -249,11 +276,36 @@ document.addEventListener("keydown", function (event) {
     }
 
     if (key === "ArrowLeft" || key === "a" || key === "A") {
-        currentLane = Math.max(0, currentLane - 1);
+        handleAction("left");
     }
 
     if (key === "ArrowRight" || key === "d" || key === "D") {
-        currentLane = Math.min(laneCount - 1, currentLane + 1);
+        handleAction("right");
     }
 
+    if (key === " " || key === "ArrowUp" || key === "w" || key === "W") {
+        event.preventDefault();
+        handleAction("jump");
+    }
 });
+
+function handleAction(action) {
+    if (gameOver) {
+        return;
+    }
+
+    if (action === "left") {
+        currentLane = Math.max(0, currentLane - 1);
+    } else if (action === "right") {
+        currentLane = Math.min(laneCount - 1, currentLane + 1);
+    } else if (action === "jump") {
+        jump();
+    }
+}
+
+function jump() {
+    if (!man.jumping) {
+        man.jumping = true;
+        man.velocityY = -12;
+    }
+}

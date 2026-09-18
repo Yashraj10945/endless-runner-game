@@ -1,6 +1,8 @@
 body {
     margin: 0;
-    padding: 24px 0;
+    min-height: 100vh;
+    padding: 24px 12px;
+    box-sizing: border-box;
     font-family: 'Courier New', Courier, monospace;
     text-align: center;
     background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
@@ -10,7 +12,8 @@ body {
 h1 {
     color: #f8fafc;
     letter-spacing: 2px;
-    margin-bottom: 10px;
+    margin: 0 0 10px;
+    font-size: clamp(24px, 6vw, 32px);
 }
 
 #score {
@@ -28,14 +31,15 @@ p {
 
 #gameArea {
     position: relative;
-    width: 260px;
+    width: min(600px, 100%);
     margin: 0 auto;
 }
 
 #road {
     display: block;
-    width: 260px;
-    height: 550px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 600 / 550;
     margin: 0 auto;
     background: repeating-linear-gradient(
         to bottom,
@@ -47,12 +51,43 @@ p {
     border: 4px solid #ffffff;
     border-radius: 16px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+}
+
+#touchControls {
+    display: none;
+    width: min(600px, 100%);
+    gap: 10px;
+    margin: 12px auto 0;
+}
+
+#touchControls button {
+    flex: 1;
+    min-height: 64px;
+    padding: 8px 12px;
+    border: 2px solid #fbbf24;
+    border-radius: 8px;
+    background: #374151;
+    color: #fef3c7;
+    font-family: Arial, sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    font-weight: bold;
+    touch-action: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#touchControls button:active {
+    background: #ca840a;
+    color: #111827;
 }
 
 #gameOver {
     display: none;
     color: #fca5a5;
-    font-size: 28px;
+    font-size: clamp(20px, 5vw, 28px);
     font-weight: bold;
     margin-top: 14px;
 }
@@ -78,4 +113,21 @@ p {
 #replayBtn:hover {
     transform: translate(-50%, -50%) scale(1.02);
     filter: brightness(1.05);
+}
+
+@media (max-width: 699px), (hover: none) and (pointer: coarse) {
+    #touchControls {
+        display: flex;
+    }
+}
+
+@media (max-width: 360px) {
+    #touchControls {
+        gap: 6px;
+    }
+
+    #touchControls button {
+        min-height: 58px;
+        font-size: 28px;
+    }
 }
